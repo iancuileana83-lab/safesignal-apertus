@@ -58,6 +58,11 @@ function setNotice(msg) {
   n.textContent = msg || '';
 }
 
+function goLabel() {
+  if (state.live) return 'Check this report';
+  return state.replays.length ? 'Show recorded run' : 'Analysis unavailable (no model, no recording)';
+}
+
 // ---- init ----------------------------------------------------------------
 async function init() {
   try {
@@ -83,7 +88,7 @@ async function init() {
     sel.append(h('option', { value: c.id }, c.title + (!state.live && rec ? '  (recorded AMD run)' : '')));
   }
   describeBackend();
-  $('go').textContent = state.live ? 'Check this report' : 'Show recorded run';
+  $('go').textContent = goLabel();
   if (!state.live) {
     setNotice(
       state.replays.length
@@ -119,8 +124,11 @@ $('go').addEventListener('click', async () => {
     } catch (e) {
       state.live = false;
       describeBackend();
-      $('go').textContent = 'Show recorded run';
-      setNotice('The model could not be reached (' + e.message + '). You can use a recorded sample or fill the form by hand.');
+      $('go').textContent = goLabel();
+      setNotice(
+        'The model could not be reached (' + e.message + '). ' +
+          (state.replays.length ? 'You can use a recorded sample or fill the form by hand.' : 'There is no recorded run yet, so fill the form by hand.'),
+      );
     } finally {
       $('busy').hidden = true;
       $('go').disabled = false;
@@ -132,7 +140,9 @@ $('go').addEventListener('click', async () => {
   const rec = c && state.replays.find((r) => r.id === c.id);
   if (!rec) {
     setNotice(
-      'The AMD GPU is off, so a new text cannot be analysed live. Choose one of the samples that has a recorded AMD run, or fill the form by hand.',
+      state.replays.length
+        ? 'The AMD GPU is off, so a new text cannot be analysed live. Choose one of the samples that has a recorded AMD run, or fill the form by hand.'
+        : 'No model is connected and there is no recorded run yet, so this text cannot be analysed. Fill the form by hand and use the checks.',
     );
     return;
   }
