@@ -59,6 +59,11 @@ free text (ro/en/de/fr/it)
   2026-10-15). The gateway also lists `swiss-ai/apertus-v1.5-8b`, but calls to it failed with HTTP 404
   ("Model 'alias-apertus' not found", a gateway-side error), so **all measured results use the 70B model**. The
   8B model is the realistic one for a local single-GPU deployment; it was not measured here.
+- **Demo video and screenshots (15 Oct 2026) used a different model:** `swiss-ai/apertus-8b-instruct` (Apertus
+  1.0, 8B instruct, same gateway). At recording time the v1.5 models were unreliable on the free tier (the 70B
+  answered about one call in three with HTTP 429 otherwise; the 8B v1.5 returned HTTP 404), so the recording used the
+  model that answered consistently. The app shows the exact model id in its badge and provenance line, and the
+  video captions name it. The measured results in section 5 are from `swiss-ai/apertus-v1.5-70b`, not from this model.
 - **How it is used:** inference only, one call per report. No fine-tuning, adapters or quantisation by us.
 - **Where it runs:** hosted by the Public AI inference utility (see section 2).
 - **Prompt** (`src/llm.mjs`, `buildPrompt`): the report is wrapped between `<<<REPORT_TEXT` markers and declared

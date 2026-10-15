@@ -35,7 +35,7 @@ export const DICT = {
     'btn.print': 'Print',
     'nosend': 'There is no send button on purpose. The file is for the person who will submit it through the proper channel.',
     'foot':
-      'SafeSignal for Hack Apertus, Track 2B. Extraction with Apertus 1.5. Code: Apache-2.0, documentation: CC-BY-4.0. Demo only, fictional data.',
+      'SafeSignal for Hack Apertus, Track 2B. Extraction with an Apertus model (its exact id is shown at the top). Code: Apache-2.0, documentation: CC-BY-4.0. Demo only, fictional data.',
     // backend badge
     'badge.checking': 'Checking the model…',
     'badge.gateway': 'Live · {model} · Public AI gateway (hosted)',
@@ -187,7 +187,7 @@ export const DICT = {
     'btn.print': 'Tipărește',
     'nosend': 'Nu există buton de trimitere, intenționat. Fișierul este pentru persoana care îl va depune prin canalul oficial.',
     'foot':
-      'SafeSignal pentru Hack Apertus, Track 2B. Extragere cu Apertus 1.5. Cod: Apache-2.0, documentație: CC-BY-4.0. Doar demonstrație, date fictive.',
+      'SafeSignal pentru Hack Apertus, Track 2B. Extragere cu un model Apertus (identificatorul exact este afișat sus). Cod: Apache-2.0, documentație: CC-BY-4.0. Doar demonstrație, date fictive.',
     'badge.checking': 'Se verifică modelul…',
     'badge.gateway': 'Activ · {model} · gateway Public AI (găzduit)',
     'badge.local': 'Activ · {model} · server local',
