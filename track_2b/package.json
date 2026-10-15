@@ -1,0 +1,15 @@
+{
+  "name": "safesignal-apertus",
+  "version": "0.1.0",
+  "description": "Helps complete and triage a suspected medicine side-effect report, in Romanian and other languages, before a human reviews it. Hack Apertus Track 2B. Demo only.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "private": true,
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.mjs",
+    "standin": "node src/tools/standin.mjs",
+    "test": "node --test src/test/*.test.mjs",
+    "bench": "node --env-file-if-exists=.env src/tools/bench.mjs"
+  }
+}

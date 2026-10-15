@@ -1,88 +1,67 @@
-# SafeSignal
+# SafeSignal for Apertus
 
-An AI agent that helps people and pharmacy staff report a **suspected medicine side effect** completely and clearly.
-It reads a free-text description, extracts the key facts, shows what is still missing, triages urgency with
-simple transparent rules, and prepares a structured draft report that **a human reviews before anything is sent**.
+Hack Apertus, **Track 2B (Own Project)**. Team: **SafeSignal** (solo: Ileana Mazilu).
+
+SafeSignal helps people and pharmacy staff report a **suspected medicine side effect** completely, in
+**Romanian, English, German, French or Italian**. A person describes what happened in their own words.
+**Apertus 1.5** extracts the facts and must quote the words behind every field. Plain, transparent rules
+(not the model) then check what is missing and how urgent the wording looks. A person edits the structured draft
+and downloads it. Nothing is sent anywhere.
 
 > **Demo only. Fictional data. Not medical advice.** SafeSignal never diagnoses and has no send button.
 
-Built for the AMD Developer Hackathon: ACT III (Track 2, Health and Wellbeing) by Ileana Mazilu,
-a freelance medical writer with twenty years of experience in community pharmacies.
-
-## How it works
-
-```
-free text --> LLM extraction (open model on AMD, vLLM) --> editable fields, each with the quote it came from
-                                                              |
-                           deterministic rules (no model) <---+
-                           - completeness: 9 key items + the 4-item minimum (patient, reporter, medicine, reaction)
-                           - triage: emergency wording / priority / routine, every reason shown with a rule id
-                                                              |
-                                      structured draft report --> human review --> JSON file
-```
-
-Design choices that matter for safety:
-
-- **The model only extracts.** Completeness and urgency come from plain rules in
-  [`public/js/rules.js`](public/js/rules.js), so a prompt injection inside a report cannot lower the urgency
-  (see the `injection-attempt` sample and the tests).
-- **Grounding check.** The model must quote the words behind each field. Fields whose quote is not found in the
-  text are flagged "not found in your text, please check".
-- **Human in the loop.** Every field is editable, the report is a draft until a person ticks the review box, and
-  nothing is transmitted anywhere.
-- **No storage.** The server does not log or keep report text.
-
-## AMD usage
-
-The extraction model is served with **vLLM on ROCm on an AMD Instinct MI300X** (AMD Developer Cloud) and called
-through one OpenAI-compatible endpoint. The app runs the same code against any such endpoint; only environment
-variables change. The page always shows what is really behind it:
-
-| Badge | Meaning |
-|---|---|
-| **Live on AMD · model · hardware** | vLLM on AMD Instinct answered this request |
-| **Local stand-in (not AMD, not a real model)** | development substitute, never presented as AMD |
-| **AMD GPU is off · showing replays of real AMD runs** | GPU stopped to save credits; the page replays recordings of real runs, each marked with date, model, hardware, latency |
-
-Replays are produced only by `npm run record`, which refuses to run unless `BACKEND_KIND=amd`.
-Benchmarks are produced only by `npm run bench` against the configured endpoint (see `bench/results/`).
+The project lives in [`track_2b/`](track_2b/). Report: [`track_2b/technical_report.md`](track_2b/technical_report.md).
 
 ## Run it
 
-Node 18+ is the only requirement (no npm dependencies).
+Needs Docker and `make`.
 
 ```bash
-cp .env.example .env        # defaults point to the local stand-in
-npm run standin             # terminal 1: temporary stand-in on :8001
-npm start                   # terminal 2: app on http://localhost:3000
-npm test
+cp track_2b/.env.example track_2b/.env     # then set LLM_API_KEY yourself
+make run                                   # http://localhost:3000
 ```
 
-Switch to AMD by changing `.env` only: `LLM_BASE_URL=http://<droplet>:8000/v1`, `BACKEND_KIND=amd`,
-`HARDWARE_LABEL="AMD Instinct MI300X · ROCm · vLLM"`, `LLM_MODEL=<served model>`.
-Full steps: [docs/AMD_RUNBOOK.md](docs/AMD_RUNBOOK.md).
+`make run` takes the model settings from the environment or from `track_2b/.env`:
 
-```bash
-npm run record        # record real AMD runs as replays (data/replays)
-npm run bench         # quality + latency + throughput at several concurrency levels
-npm run build:static  # dist/ for static hosting in replay mode
-docker build -t safesignal . && docker run -p 3000:3000 --env-file .env safesignal
-```
-
-## Layout
-
-| Path | What |
+| Variable | Example |
 |---|---|
-| `public/js/rules.js` | completeness, triage, report builder (pure, shared by browser, server, tests) |
-| `src/llm.mjs` | OpenAI-compatible client, extraction prompt, output validation and grounding |
-| `server.mjs` | static files, `/api/status`, `/api/extract` (zero dependencies) |
-| `tools/` | stand-in model, recorder, benchmark, static build |
-| `data/cases.json` | fictional sample reports with expected answers |
-| `docs/` | AMD runbook, submission checklist and texts |
+| `LLM_NAME` | `swiss-ai/apertus-v1.5-8b` |
+| `LLM_BASE_URL` | `https://api.publicai.co/v1` (Public AI gateway) or `http://<your-server>:8000/v1` |
+| `LLM_API_KEY` | your key (never committed, never sent to the browser) |
 
-## Limits
+Without any model settings the app still starts: the form and the completeness and urgency checks work by
+hand, and the page says that no model is connected.
 
-Triage rules are keyword based and English only; they are a transparent aid, not a clinical tool.
-All sample data is invented. Do not enter real personal or patient information.
+Without Docker: `cd track_2b && npm start` (Node 18+, no npm dependencies) and `npm test`.
 
-MIT licence, see [LICENSE](LICENSE).
+## What is in it
+
+- **Extraction:** one OpenAI-compatible call; the model returns each field with an exact quote. Quotes are
+  checked against the text (accent-insensitive, so `ș`/`ş`, `ț`/`ţ`, `ă` do not break the check); fields whose
+  quote is not found are flagged.
+- **Rules in five languages:** completeness (the minimum of patient, reporter, medicine, reaction) and
+  urgency (emergency wording, priority, routine), each reason shown with a rule id. A prompt injected into a
+  report cannot lower the urgency, because the model does not set it.
+- **Bilingual interface:** Romanian and English UI; reports can be in any of the five languages.
+- **Human in the loop:** every field is editable and the report is a draft until a person ticks the review box.
+- **No storage:** the server neither logs nor keeps report text.
+
+## Sovereignty, honestly
+
+The code has no external runtime dependency other than the model endpoint, and that endpoint is one URL. The
+demo uses the hosted Public AI gateway. To run on-premise or air-gapped, point `LLM_BASE_URL` at an Apertus
+weights server on the same machine or network. That path is **designed for but not demonstrated** in this
+submission; see the technical report.
+
+## Origin and disclosure
+
+The base application (SafeSignal) was first built for the **AMD Developer Hackathon: ACT III** with a different
+model (Gemma, planned on AMD hardware): <https://github.com/iancuileana83-lab/safesignal>. Its first commit is
+dated 2026-10-13, inside the Hack Apertus period. This repository is a separate copy; what changed is listed in
+the technical report. The code and the rule texts were written with an AI coding assistant (Claude Code), which
+is disclosed in the report as well.
+
+## Licence
+
+Code: Apache-2.0 ([LICENSE](LICENSE)). Documentation: CC-BY-4.0. Sample data (`track_2b/data/`):
+CDLA-Permissive-2.0.

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SafeSignal</title>
+<meta name="description" content="An assistant that helps complete and triage a suspected medicine side-effect report, in Romanian and other languages, before a human reviews it. Demo only, fictional data.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-row">
+    <div class="brand"><span class="dot" aria-hidden="true"></span><h1>SafeSignal</h1></div>
+    <div class="top-right">
+      <label for="lang" class="sr" data-i18n="lang.label">Language</label>
+      <select id="lang" class="langsel">
+        <option value="en">English</option>
+        <option value="ro">Română</option>
+      </select>
+      <div id="backend" class="backend" role="status" aria-live="polite" data-i18n="badge.checking">Checking the model…</div>
+    </div>
+  </div>
+  <div class="wrap notice">
+    <strong data-i18n="top.demo">Demo only. Fictional data. Not medical advice. Nothing is sent anywhere: a person reviews every draft.</strong>
+    <span class="warn" data-i18n="top.warn">Do not type real names or real patient details.</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card" aria-labelledby="s1">
+    <h2 id="s1"><span class="n">1</span> <span data-i18n="s1.title">Describe what happened</span></h2>
+    <p class="muted" data-i18n="s1.lead">Write it the way you would tell a colleague.</p>
+    <div class="row">
+      <label for="sample" data-i18n="sample.label">Try a sample</label>
+      <select id="sample"><option value="" data-i18n="sample.placeholder">Choose a fictional sample…</option></select>
+    </div>
+    <label for="narrative" class="sr" data-i18n="narrative.label">Report text</label>
+    <textarea id="narrative" rows="6" maxlength="4000" data-i18n-ph="narrative.ph" placeholder=""></textarea>
+    <div class="row">
+      <button id="go" class="primary" data-i18n="btn.go">Check this report</button>
+      <button id="manual" class="ghost" data-i18n="btn.manual">Fill the form by hand</button>
+      <span id="busy" class="muted" hidden data-i18n="busy">Working…</span>
+    </div>
+    <p id="notice" class="note" hidden></p>
+  </section>
+
+  <section id="review" class="card" hidden aria-labelledby="s2">
+    <h2 id="s2"><span class="n">2</span> <span data-i18n="s2.title">Check the details</span></h2>
+    <p id="prov" class="prov"></p>
+    <p id="summary" class="muted"></p>
+    <p class="muted" data-i18n="s2.lead">Every box is editable.</p>
+    <div id="form"></div>
+  </section>
+
+  <section id="checks" class="card" hidden aria-labelledby="s3">
+    <h2 id="s3"><span class="n">3</span> <span data-i18n="s3.title">What is missing, and how urgent is it</span></h2>
+    <div class="grid2">
+      <div>
+        <h3><span data-i18n="completeness.h">Completeness</span> <span id="pct" class="pct"></span></h3>
+        <div class="bar" aria-hidden="true"><div id="barfill"></div></div>
+        <p id="minimum" class="muted"></p>
+        <ul id="missing" class="plain"></ul>
+        <div id="modelq"></div>
+      </div>
+      <div>
+        <h3 data-i18n="urgency.h">Urgency (simple rules)</h3>
+        <div id="triage" class="triage"></div>
+        <ul id="reasons" class="plain"></ul>
+        <details class="rules"><summary data-i18n="rules.summary">How these rules work</summary>
+          <p data-i18n="rules.body"></p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="report" class="card" hidden aria-labelledby="s4">
+    <h2 id="s4"><span class="n">4</span> <span data-i18n="s4.title">Draft report for human review</span></h2>
+    <div id="draft" class="draft"></div>
+    <label class="check"><input type="checkbox" id="reviewed"> <span data-i18n="reviewed.label">I have read this draft and corrected it.</span></label>
+    <div class="row">
+      <button id="download" class="primary" disabled data-i18n="btn.download">Download reviewed report (JSON)</button>
+      <button id="print" class="ghost" data-i18n="btn.print">Print</button>
+    </div>
+    <p class="muted" data-i18n="nosend">There is no send button on purpose.</p>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p data-i18n="foot">SafeSignal for Hack Apertus, Track 2B.</p>
+</footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>

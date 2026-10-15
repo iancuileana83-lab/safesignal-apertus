@@ -1,0 +1,30 @@
+{
+  "measuredAt": "2026-10-15T07:03:21.268Z",
+  "baseline": {
+    "en": {
+      "samples": 6,
+      "englishOnlyCorrect": 6,
+      "allPacksCorrect": 6
+    },
+    "ro": {
+      "samples": 6,
+      "englishOnlyCorrect": 3,
+      "allPacksCorrect": 6
+    },
+    "de": {
+      "samples": 1,
+      "englishOnlyCorrect": 0,
+      "allPacksCorrect": 1
+    },
+    "fr": {
+      "samples": 1,
+      "englishOnlyCorrect": 0,
+      "allPacksCorrect": 1
+    },
+    "it": {
+      "samples": 1,
+      "englishOnlyCorrect": 1,
+      "allPacksCorrect": 1
+    }
+  }
+}
