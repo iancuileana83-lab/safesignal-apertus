@@ -152,7 +152,9 @@ const EMERGENCY_RULES = [
   {
     id: 'E3',
     en: /swell\w*[^.]{0,40}\b(face|lips?|tongue|throat|mouth|eyelids?)\b|\b(face|lips?|tongue|throat|mouth|eyelids?)\b[^.]{0,30}\bswell/,
-    ro: /(umfl\w+|edem\w*|angioedem\w*|tumefi\w+)[^.]{0,40}\b(fata|buz\w+|limb\w+|gat\w*|faringe|pleoap\w+|gur\w+)\b|\b(fata|buz\w+|limb\w+|gat\w*|pleoap\w+|gur\w+)\b[^.]{0,30}(umfl|edem|tumefi)|quincke/,
+    // "gura" (mouth) only counts when the swelling word is right next to it ("umflat la gura",
+    // "gura i s-a umflat"), so "gura uscata" and unrelated sentences never match.
+    ro: /(umfl\w+|edem\w*|angioedem\w*|tumefi\w+)[^.]{0,40}\b(fata|buz\w+|limb\w+|gat\w*|faringe|pleoap\w+)\b|\b(fata|buz\w+|limb\w+|gat\w*|pleoap\w+)\b[^.]{0,30}(umfl|edem|tumefi)|(umfl\w+|edem\w*|tumefi\w+)\s+(la\s+|in\s+|pe\s+|de\s+)?gur\w*|\bgur\w*\s+(i\s+|s-a\s+|s-au\s+|i\s+s-a\s+|i\s+s-au\s+)?(umfl|edem|tumefi)|quincke/,
     de: /(geschwollen\w*|schwellung\w*|angeschwollen|odem|angioodem|quincke)[^.]{0,40}\b(gesicht\w*|lippen?|zunge|hals|rachen|mund|augenlid\w*)\b|\b(gesicht\w*|lippen?|zunge|hals|rachen|mund|augenlid\w*)\b[^.]{0,30}(geschwollen|schwell|schwoll|angeschwollen)/,
     fr: /(gonfl\w+|enfl\w+|oedeme\w*|angio-?oedeme|quincke|tumefi\w+)[^.]{0,40}\b(visage|levres?|langue|gorge|bouche|paupieres?|face)\b|\b(visage|levres?|langue|gorge|bouche|paupieres?)\b[^.]{0,30}(gonfl|enfl|oedeme|tumefi)/,
     it: /(gonfi\w+|tumefa\w+|edema|angioedema)[^.]{0,40}\b(viso|faccia|labbr\w+|lingua|gola|bocca|palpebr\w+)\b|\b(viso|faccia|labbra|labbro|lingua|gola|bocca|palpebre)\b[^.]{0,30}(gonfi|tumef|edema)/,
@@ -211,8 +213,9 @@ const PRIORITY_TEXT_RULES = [
   {
     id: 'P3',
     en: /hospitali[sz]|admitted|emergency\s+(department|room)|\ba\s*&\s*e\b|intensive\s+care|\bicu\b|ambulance/,
-    ro: /\bspital\w*|\binternat\w*|\binternare|\bambulant\w*|\bupu\b|camera\s+de\s+garda|terapie\s+intensiva|\bsmurd\b/,
-    de: /krankenhaus|\bspital|notaufnahme|rettungsdienst|rettungswagen|krankenwagen|notarzt|intensivstation|stationar|eingeliefert|eingewiesen/,
+    // spital / spitalul / spitale ... and spitaliz* (spitalizat, spitalizare), but not "spitalicesc"
+    ro: /\bspital(ul|ului|e|ele|elor)?\b|\bspitaliz\w*|\binternat\w*|\binternare|\bambulant\w*|\bupu\b|camera\s+de\s+garda|terapie\s+intensiva|\bsmurd\b/,
+    de: /krankenhaus|\bspital(s|er)?\b|\bspitalaufenthalt|\bspitaleintritt|notaufnahme|rettungsdienst|rettungswagen|krankenwagen|notarzt|intensivstation|stationar|eingeliefert|eingewiesen/,
     fr: /hospitalis|\bhopital|\burgences\b|ambulance|\bsamu\b|reanimation|soins\s+intensifs/,
     it: /\bricoverat\w*|\bricovero|\bospedal\w*|pronto\s+soccorso|ambulanza|terapia\s+intensiva|\b118\b/,
   },

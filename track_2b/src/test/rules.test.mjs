@@ -104,6 +104,23 @@ test('rule ids and levels do not depend on the display language', () => {
   assert.notEqual(a.reasons[0].text, b.reasons[0].text);
 });
 
+test('Romanian "gură": only swelling of the mouth counts, not "gură uscată"', () => {
+  const lvl = (t) => triage(emptyFields(), t, 'ro').level;
+  assert.equal(lvl('Are gură uscată și o ușoară somnolență după tabletă.'), 'routine');
+  assert.equal(lvl('Are gura uscată și i s-a umflat piciorul.'), 'routine');
+  assert.equal(lvl('Mi s-a umflat la gură după prima doză.'), 'emergency');
+  assert.equal(lvl('Gura i s-a umflat după prima doză.'), 'emergency');
+  assert.equal(lvl('Buze umflate după antibiotic.'), 'emergency');
+});
+
+test('Romanian "spital": hospital words count, "spitalicesc" does not', () => {
+  const lvl = (t) => triage(emptyFields(), t, 'ro').level;
+  assert.equal(lvl('A mâncat ceva cu gust spitalicesc.'), 'routine');
+  assert.equal(lvl('A fost dus la spital.'), 'priority');
+  assert.equal(lvl('Este internat în spitalul județean.'), 'priority');
+  assert.equal(lvl('A fost spitalizată o noapte.'), 'priority');
+});
+
 test('the bladder is not a blister (Romanian basică urinară)', () => {
   assert.equal(triage(emptyFields(), 'Are probleme cu basica urinară de ani de zile.').level, 'routine');
 });

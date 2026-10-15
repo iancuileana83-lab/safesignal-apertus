@@ -142,8 +142,9 @@ under 2 years, pregnancy), which the rules only see once the model has filled th
 - Rules are keyword and pattern based, not clinical. They cannot understand negation ("no difficulty breathing")
   and will over-trigger there; this errs towards a human looking sooner, but it is a false alarm.
 - The Romanian, German, French and Italian patterns and the Romanian interface texts were drafted with an AI
-  coding assistant and **have not been reviewed by a clinical or native-speaker reviewer**.
-  `[FILL: review status of the Romanian texts by the author]`
+  coding assistant. **Romanian UI texts and rule patterns reviewed on 15 Oct 2026 by the author, a pharmacy
+  assistant with about 20 years of experience in community pharmacies.** The German, French and Italian patterns
+  have **not** been reviewed by a native speaker or a clinical reviewer.
 - Only 19 fictional samples; one German, one French, one Italian. Dialects, abbreviations, typing without
   diacritics and brand names are barely covered. Accent-insensitive matching helps with missing diacritics.
 - The extraction quality of the 8B model on real, messy Romanian is unknown beyond the fictional set.
