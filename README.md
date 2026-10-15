@@ -10,7 +10,13 @@ and downloads it. Nothing is sent anywhere.
 
 > **Demo only. Fictional data. Not medical advice.** SafeSignal never diagnoses and has no send button.
 
-The project lives in [`track_2b/`](track_2b/). Report: [`track_2b/technical_report.md`](track_2b/technical_report.md).
+The project lives in [`track_2b/`](track_2b/). Report: [`track_2b/technical_report.md`](track_2b/technical_report.md)
+(PDF: [`track_2b/SafeSignal_Report.pdf`](track_2b/SafeSignal_Report.pdf)).
+
+**Demo video (about 100 s):** <https://youtu.be/axOxy9aDvLo>. It was recorded with `swiss-ai/apertus-8b-instruct`
+(Apertus 1.0, 8B instruct) because the v1.5 models were unreliable on the free tier at recording time; the exact
+model id is shown in the app and in the captions. The measured results in the report are from
+`swiss-ai/apertus-v1.5-70b`.
 
 ## Run it
 

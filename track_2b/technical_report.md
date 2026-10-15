@@ -6,7 +6,8 @@ numbers say.
 - **Track:** `Track 2B — SafeSignal`
 - **Event:** Online
 - **Team:** `SafeSignal` — Ileana Mazilu (solo)
-- **Demo:** `[ADD VIDEO URL]`
+- **Demo:** <https://youtu.be/axOxy9aDvLo> (about 100 s; recorded with `swiss-ai/apertus-8b-instruct`, see section 3)
+- **Code:** <https://github.com/iancuileana83-lab/safesignal-apertus> (public, Apache-2.0)
 
 ## 1. Summary
 
@@ -166,7 +167,9 @@ under 2 years, pregnancy), which the rules only see once the model has filled th
 - **Tests:** `make -C track_2b test` (20 tests: rules, multilingual urgency, accent-insensitive grounding, config).
 - **Benchmark:** `make -C track_2b bench`. Without a model endpoint it still produces the rules baseline.
 - **Seeds:** none; temperature is 0, but a hosted model gives no determinism guarantee.
-- **Commit:** `[FILL at submission: git rev-parse HEAD]`
+- **Commit:** `0610d99` is the last commit that changed code, tests or CI. Later commits only fill in the links
+  of this report and regenerate its PDF. The CI workflow `Docker build and make run (no API key)` passed on that
+  commit (clean checkout, no key).
 
 ## 8. Next steps
 
