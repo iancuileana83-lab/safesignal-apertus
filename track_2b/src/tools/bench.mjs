@@ -19,6 +19,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const cfg = loadConfig();
 const REPEATS = Number(process.env.REPEATS || 3);
 const LEVELS = (process.env.LEVELS || '1,2,4').split(',').map(Number);
+const PAUSE_MS = Number(process.env.PAUSE_MS || 0);
 const cases = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'cases.json'), 'utf8'));
 const langs = [...new Set(cases.map((c) => c.lang))];
 const pct = (n, d) => (d ? Math.round((n / d) * 100) : null);
@@ -76,12 +77,14 @@ for (let r = 0; r < REPEATS; r++) {
   for (const c of cases) {
     const qs = [quality.all, quality[c.lang]];
     for (const q of qs) q.runs++;
+    if (PAUSE_MS) await new Promise((x) => setTimeout(x, PAUSE_MS)); // stay under a free-tier rate limit
     try {
       const out = await extract(c.narrative, cfg);
-      latencies.push(out.meta.latencyMs);
+      // only the first pass counts: the gateway answers an identical repeated request from a cache in ~200 ms
+      if (r === 0) latencies.push(out.meta.latencyMs);
       const f = out.fields;
       const g = c.gold;
-      const filled = Object.values(f).filter((x) => (Array.isArray(x.value) ? x.value.length : x.value));
+      const filled = Object.values(f).filter((x) => (Array.isArray(x.value) ? x.value.length : x.value && x.value !== 'unknown'));
       for (const q of qs) {
         q.jsonOk++;
         if (fold(val(f, 'medicine_name')).replace(/[^a-z0-9]/g, '') === fold(g.medicine_name).replace(/[^a-z0-9]/g, '')) q.medicine++;
@@ -179,7 +182,11 @@ const md = [
   '|---|---|---|---|---|---|---|---|---|',
   ...rows,
   '',
-  `Latency per report: p50 ${res.latencyMsP50} ms, p95 ${res.latencyMsP95} ms.`,
+  `Latency per report (first pass only): p50 ${res.latencyMsP50} ms, p95 ${res.latencyMsP95} ms.`,
+  '',
+  'Caveat: the Public AI gateway caches identical requests (observed: same completion id, ~200 ms). Latency is only',
+  'valid for requests it has not seen before; the throughput table below reuses the same samples, so its latencies are',
+  'cache hits, and concurrent requests on the free tier were answered with HTTP 429 (rate limit).',
   '',
   '## Throughput',
   '',

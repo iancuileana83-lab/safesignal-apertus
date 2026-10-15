@@ -143,7 +143,9 @@ export function validate(raw, narrative) {
       const v = value.toLowerCase();
       value = ENUMS[d.enum].includes(v) ? v : '';
     }
-    fields[d.key] = { value, quote: quote.slice(0, 300), grounded: value ? grounded(quote) : true };
+    // "unknown" with no quote is the model saying it was not stated: nothing to ground
+    const nothingClaimed = !value || (value.toLowerCase() === 'unknown' && !quote.trim());
+    fields[d.key] = { value, quote: quote.slice(0, 300), grounded: nothingClaimed ? true : grounded(quote) };
   }
   const sers = [];
   const quotes = [];

@@ -17,7 +17,9 @@ and outcome and must quote the words behind every field. Plain rules, not the mo
 against the minimum of a valid report and triage the urgency of the wording, showing a rule id for each reason.
 A person edits the draft, confirms the review and downloads a structured report. Nothing is sent anywhere.
 Headline result so far: the multilingual rule packs classify 15 of 15 text-only urgency samples correctly, against
-10 of 15 for the English-only pack (section 5); model results are in section 5 once measured.
+10 of 15 for the English-only pack, and Apertus 1.5 (70B, hosted) returned valid JSON on all 38 runs, found the
+medicine in 95%, detected the report language in 100% and, combined with the rules, gave the expected urgency
+in 100% of runs (section 5; fictional samples, so a design check, not validation).
 
 ## 2. Architecture
 
@@ -47,13 +49,16 @@ free text (ro/en/de/fr/it)
   an external hosted service and therefore *not* air-gapped or on-premise. The demo is honest about this: the
   page badge reads "Public AI gateway (hosted)".
 - **Not done:** serving Apertus weights locally (no GPU was available in the build window), so latency, memory
-  and quality of a local deployment are unmeasured. `[FILL IF DONE: local run details]`
+  and quality of a local deployment are unmeasured. (`apertus-v1.5-8b` was the intended local model; the 70B model needs several GPUs.)
 - **External dependencies.** Build time: Docker base image `node:22-alpine`. Runtime: the model endpoint only.
   There are no npm packages.
 
 ## 3. Use of Apertus
 
-- **Model:** `swiss-ai/apertus-v1.5-8b` through the Public AI gateway. `[CONFIRM exact id with GET /v1/models]`
+- **Model:** `swiss-ai/apertus-v1.5-70b` through the Public AI gateway (id confirmed with `GET /v1/models` on
+  2026-10-15). The gateway also lists `swiss-ai/apertus-v1.5-8b`, but calls to it failed with HTTP 404
+  ("Model 'alias-apertus' not found", a gateway-side error), so **all measured results use the 70B model**. The
+  8B model is the realistic one for a local single-GPU deployment; it was not measured here.
 - **How it is used:** inference only, one call per report. No fine-tuning, adapters or quantisation by us.
 - **Where it runs:** hosted by the Public AI inference utility (see section 2).
 - **Prompt** (`src/llm.mjs`, `buildPrompt`): the report is wrapped between `<<<REPORT_TEXT` markers and declared
@@ -70,7 +75,7 @@ free text (ro/en/de/fr/it)
 
 ## 4. Data
 
-- **Sample set:** 17 fictional reports in `data/cases.json` (8 English, 6 Romanian, 1 German, 1 French,
+- **Sample set:** 19 fictional reports in `data/cases.json` (8 English, 8 Romanian, 1 German, 1 French,
   1 Italian) with gold answers for medicine, sex, outcome and urgency. The English samples come from the original
   SafeSignal repository; the others were written for this project with the AI coding assistant. No real person,
   patient or product report was used. Released under CDLA-Permissive-2.0.
@@ -102,13 +107,35 @@ generalisation to unseen text.
 
 **5b. Apertus extraction quality (measured through the gateway).**
 
-| Setup | Metric | Result |
-|-------|--------|--------|
-| Baseline: empty form (no tool) | fields filled | 0% |
-| Ours: Apertus 1.5 8B, all samples | JSON valid / medicine / sex / outcome / urgency / quotes found | `[PENDING bench]` |
-| Ours: Romanian samples only | same | `[PENDING bench]` |
-| Ours: report language detected | match with the sample language | `[PENDING bench]` |
-| Latency per report (p50 / p95) | ms | `[PENDING bench]` |
+Measured on 2026-10-15 with `swiss-ai/apertus-v1.5-70b` via the Public AI gateway: 19 samples x 2 repeats = 38
+runs (raw files in `bench/results/`). "Urgency" is the rules' result using the fields the model extracted, compared
+with the gold urgency.
+
+| Setup | Runs | JSON valid | Medicine | Sex | Outcome | Urgency | Language detected | Quotes found in text |
+|-------|------|-----------|----------|-----|---------|---------|-------------------|----------------------|
+| Baseline: empty form, no tool | - | - | 0% | 0% | 0% | 79% (rules on text alone, no fields: routine unless red-flag wording) | - | - |
+| Ours: all samples | 38 | 100% | 95% | 79% | 79% | 100% | 100% | 90% |
+| Ours: Romanian | 16 | 100% | 100% | 63% | 75% | 100% | 100% | 88% |
+| Ours: English | 16 | 100% | 88% | 88% | 75% | 100% | 100% | 88% |
+| Ours: German / French / Italian (1 each) | 6 | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
+
+Where it misses (looked at after the run; the gold answers were **not** changed to fit):
+
+- **Sex and outcome left empty** where the gold answer is an inference ("her mum felt dizzy", "he is still in
+  hospital"). The prompt says never to guess, so this is mostly the model following the instruction. One clear miss:
+  Romanian "Dl K." (Mr K.) was not mapped to male.
+- **Medicine** returned as "amoxicillin syrup" instead of "amoxicillin" (strict match; arguably acceptable).
+- **Ungrounded quotes (10% of filled fields)** include a reporter role guessed from an altered quote
+  ("He told me myself" for "He told me himself"). The grounding check flagged it, which is what it is for.
+- Latency and throughput are **not reliably measured**: the gateway caches identical requests (about 200 ms) and
+  answered concurrent requests on the free tier with HTTP 429. Observed fresh latency of the 70B model for one
+  extraction: 8.4 s, 9.0 s and 9.5 s (about 950 prompt and 500 to 540 completion tokens, 57 to 60 tokens/s).
+  See `bench/results/README.md`.
+
+The baseline urgency figure is the rules applied to the text with no extracted fields, computed over the same 19
+samples: 15 of 19 correct (79%). The 4 misses are the priority samples that depend on an extracted field (a child
+under 2 years, pregnancy), which the rules only see once the model has filled the fields. That is the part of the
+100% that the model contributes.
 
 ## 6. Limitations
 
@@ -117,7 +144,7 @@ generalisation to unseen text.
 - The Romanian, German, French and Italian patterns and the Romanian interface texts were drafted with an AI
   coding assistant and **have not been reviewed by a clinical or native-speaker reviewer**.
   `[FILL: review status of the Romanian texts by the author]`
-- Only 17 fictional samples; one German, one French, one Italian. Dialects, abbreviations, typing without
+- Only 19 fictional samples; one German, one French, one Italian. Dialects, abbreviations, typing without
   diacritics and brand names are barely covered. Accent-insensitive matching helps with missing diacritics.
 - The extraction quality of the 8B model on real, messy Romanian is unknown beyond the fictional set.
 - The hosted gateway is a third party: availability and rate limits are not under our control, and report text

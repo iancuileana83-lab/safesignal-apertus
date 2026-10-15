@@ -1,0 +1,182 @@
+{
+  "measuredAt": "2026-10-15T07:11:29.980Z",
+  "backend": {
+    "kind": "gateway",
+    "label": "Public AI gateway",
+    "model": "swiss-ai/apertus-v1.5-70b"
+  },
+  "note": "Measured against the configured endpoint.",
+  "samples": 19,
+  "repeats": 2,
+  "baseline": {
+    "en": {
+      "samples": 6,
+      "englishOnlyCorrect": 6,
+      "allPacksCorrect": 6
+    },
+    "ro": {
+      "samples": 6,
+      "englishOnlyCorrect": 3,
+      "allPacksCorrect": 6
+    },
+    "de": {
+      "samples": 1,
+      "englishOnlyCorrect": 0,
+      "allPacksCorrect": 1
+    },
+    "fr": {
+      "samples": 1,
+      "englishOnlyCorrect": 0,
+      "allPacksCorrect": 1
+    },
+    "it": {
+      "samples": 1,
+      "englishOnlyCorrect": 1,
+      "allPacksCorrect": 1
+    }
+  },
+  "quality": {
+    "all": {
+      "runs": 38,
+      "jsonOk": 38,
+      "medicine": 36,
+      "sex": 30,
+      "outcome": 30,
+      "triage": 38,
+      "language": 38,
+      "grounded": 302,
+      "filled": 334,
+      "pctJson": 100,
+      "pctMedicine": 95,
+      "pctSex": 79,
+      "pctOutcome": 79,
+      "pctTriage": 100,
+      "pctLanguage": 100,
+      "pctGrounded": 90
+    },
+    "en": {
+      "runs": 16,
+      "jsonOk": 16,
+      "medicine": 14,
+      "sex": 14,
+      "outcome": 12,
+      "triage": 16,
+      "language": 16,
+      "grounded": 122,
+      "filled": 138,
+      "pctJson": 100,
+      "pctMedicine": 88,
+      "pctSex": 88,
+      "pctOutcome": 75,
+      "pctTriage": 100,
+      "pctLanguage": 100,
+      "pctGrounded": 88
+    },
+    "ro": {
+      "runs": 16,
+      "jsonOk": 16,
+      "medicine": 16,
+      "sex": 10,
+      "outcome": 12,
+      "triage": 16,
+      "language": 16,
+      "grounded": 122,
+      "filled": 138,
+      "pctJson": 100,
+      "pctMedicine": 100,
+      "pctSex": 63,
+      "pctOutcome": 75,
+      "pctTriage": 100,
+      "pctLanguage": 100,
+      "pctGrounded": 88
+    },
+    "de": {
+      "runs": 2,
+      "jsonOk": 2,
+      "medicine": 2,
+      "sex": 2,
+      "outcome": 2,
+      "triage": 2,
+      "language": 2,
+      "grounded": 20,
+      "filled": 20,
+      "pctJson": 100,
+      "pctMedicine": 100,
+      "pctSex": 100,
+      "pctOutcome": 100,
+      "pctTriage": 100,
+      "pctLanguage": 100,
+      "pctGrounded": 100
+    },
+    "fr": {
+      "runs": 2,
+      "jsonOk": 2,
+      "medicine": 2,
+      "sex": 2,
+      "outcome": 2,
+      "triage": 2,
+      "language": 2,
+      "grounded": 16,
+      "filled": 16,
+      "pctJson": 100,
+      "pctMedicine": 100,
+      "pctSex": 100,
+      "pctOutcome": 100,
+      "pctTriage": 100,
+      "pctLanguage": 100,
+      "pctGrounded": 100
+    },
+    "it": {
+      "runs": 2,
+      "jsonOk": 2,
+      "medicine": 2,
+      "sex": 2,
+      "outcome": 2,
+      "triage": 2,
+      "language": 2,
+      "grounded": 22,
+      "filled": 22,
+      "pctJson": 100,
+      "pctMedicine": 100,
+      "pctSex": 100,
+      "pctOutcome": 100,
+      "pctTriage": 100,
+      "pctLanguage": 100,
+      "pctGrounded": 100
+    }
+  },
+  "latencyMsP50": 609,
+  "latencyMsP95": 48932,
+  "load": [
+    {
+      "concurrency": 1,
+      "requests": 6,
+      "failed": 0,
+      "wallSeconds": 2.47,
+      "reportsPerSecond": 2.43,
+      "completionTokensPerSecond": 1099,
+      "latencyMsP50": 396,
+      "latencyMsP95": 449
+    },
+    {
+      "concurrency": 2,
+      "requests": 6,
+      "failed": 6,
+      "wallSeconds": 4.83,
+      "reportsPerSecond": 0,
+      "completionTokensPerSecond": 0,
+      "latencyMsP50": null,
+      "latencyMsP95": null
+    },
+    {
+      "concurrency": 4,
+      "requests": 8,
+      "failed": 8,
+      "wallSeconds": 3.13,
+      "reportsPerSecond": 0,
+      "completionTokensPerSecond": 0,
+      "latencyMsP50": null,
+      "latencyMsP95": null
+    }
+  ]
+}
