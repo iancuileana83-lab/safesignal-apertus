@@ -1,0 +1,74 @@
+name: Docker build and make run (no API key)
+
+# Proves that a clean checkout builds and starts with `make run` from the repository root,
+# with no model settings at all. The app must start and say that no model is connected.
+# No secrets are used or needed.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Clean checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Unit tests
+        run: make -C track_2b test
+
+      - name: No model settings or secrets are present
+        run: |
+          if env | grep -E '^(LLM_|BACKEND_)'; then echo "unexpected model settings in the environment"; exit 1; fi
+          test ! -f track_2b/.env
+
+      - name: make run (docker build + container start)
+        run: |
+          make run > run.log 2>&1 &
+          echo "started make run in the background"
+
+      - name: Wait for the app and check it
+        run: |
+          ok=0
+          for i in $(seq 1 90); do
+            if curl -fsS http://localhost:3000/api/status -o status.json 2>/dev/null; then ok=1; break; fi
+            sleep 2
+          done
+          if [ "$ok" != 1 ]; then echo "app did not answer within 3 minutes"; tail -n 60 run.log; exit 1; fi
+          echo "status: $(cat status.json)"
+          grep -q '"server":true' status.json
+          grep -q '"configured":false' status.json
+          grep -q '"reachable":false' status.json
+          # the page and the samples are served
+          curl -fsS http://localhost:3000/ | grep -q 'SafeSignal'
+          curl -fsS http://localhost:3000/js/rules.js | grep -q 'EMERGENCY_RULES'
+          n=$(curl -fsS http://localhost:3000/cases.json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).length))')
+          echo "samples served: $n"
+          test "$n" -ge 19
+          # the gold answers are not sent to the browser
+          if curl -fsS http://localhost:3000/cases.json | grep -q '"gold"'; then echo "gold answers leaked"; exit 1; fi
+          # without a model the extraction endpoint says so instead of failing silently
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3000/api/extract -H 'content-type: application/json' -d '{"narrative":"A man took ibuprofen and got a rash."}')
+          echo "extract without a model: HTTP $code"
+          test "$code" = 503
+          # .env and server code are not served
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/.env)" = 404
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/server.mjs)" = 404
+
+      - name: Container log
+        if: always()
+        run: |
+          docker ps -a || true
+          tail -n 40 run.log || true
+          docker ps -q --filter ancestor=safesignal-apertus | xargs -r docker stop || true
